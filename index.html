@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Asteroid Shooter Game</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        canvas {
+            background: url('https://i.ibb.co/3kZ0zLM/background.jpg') no-repeat center center;
+            background-size: cover;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const playerImage = new Image();
+        playerImage.src = 'https://i.ibb.co/rvj8FKn/player.png';
+
+        const asteroidImages = [
+            'https://i.ibb.co/QrzDhWM/fish.png',
+            'https://i.ibb.co/cYLVhpc/shark.png',
+            'https://i.ibb.co/pZKf61x/dolphin.png',
+            'https://i.ibb.co/xLzdd4v/fish2.png'
+        ].map(src => {
+            const img = new Image();
+            img.src = src;
+            return img;
+        });
+
+        const player = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 60,
+            width: 50,
+            height: 50,
+            speed: 5,
+            dx: 0
+        };
+
+        const bullets = [];
+        const asteroids = [];
+        let score = 0;
+
+        function createAsteroid() {
+            const img = asteroidImages[Math.floor(Math.random() * asteroidImages.length)];
+            const size = Math.random() * 30 + 20;
+            const y = Math.random() * canvas.height;
+            const speed = Math.random() * 2 + 1;
+            const direction = Math.random() < 0.5 ? -1 : 1;
+            const x = direction === 1 ? -size : canvas.width + size;
+            asteroids.push({ img, x, y, size, speed, direction });
+        }
+
+        function drawPlayer() {
+            ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+        }
+
+        function drawBullets() {
+            ctx.fillStyle = 'red';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+
+        function drawAsteroids() {
+            asteroids.forEach(asteroid => {
+                ctx.drawImage(asteroid.img, asteroid.x, asteroid.y, asteroid.size, asteroid.size);
+            });
+        }
+
+        function drawScore() {
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 30);
+        }
+
+        function updatePlayer() {
+            player.x += player.dx;
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+        }
+
+        function updateBullets() {
+            bullets.forEach((bullet, index) => {
+                bullet.y -= bullet.speed;
+                if (bullet.y < 0) {
+                    bullets.splice(index, 1);
+                }
+            });
+        }
+
+        function updateAsteroids() {
+            asteroids.forEach((asteroid, index) => {
+                asteroid.x += asteroid.speed * asteroid.direction;
+                if (asteroid.direction === 1 && asteroid.x > canvas.width + asteroid.size) {
+                    asteroid.x = -asteroid.size;
+                } else if (asteroid.direction === -1 && asteroid.x < -asteroid.size) {
+                    asteroid.x = canvas.width + asteroid.size;
+                }
+            });
+        }
+
+        function detectCollisions() {
+            asteroids.forEach((asteroid, aIndex) => {
+                if (
+                    player.x < asteroid.x + asteroid.size &&
+                    player.x + player.width > asteroid.x &&
+                    player.y < asteroid.y + asteroid.size &&
+                    player.y + player.height > asteroid.y
+                ) {
+                    console.log('Player hit!');
+                }
+
+                bullets.forEach((bullet, bIndex) => {
+                    if (
+                        bullet.x < asteroid.x + asteroid.size &&
+                        bullet.x + bullet.width > asteroid.x &&
+                        bullet.y < asteroid.y + asteroid.size &&
+                        bullet.y + bullet.height > asteroid.y
+                    ) {
+                        asteroids.splice(aIndex, 1);
+                        bullets.splice(bIndex, 1);
+                        score += 10;
+                    }
+                });
+            });
+        }
+
+        function shoot() {
+            const bullet = {
+                x: player.x + player.width / 2 - 2.5,
+                y: player.y,
+                width: 5,
+                height: 10,
+                speed: 7
+            };
+            bullets.push(bullet);
+        }
+
+        function clear() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function update() {
+            clear();
+            drawPlayer();
+            drawBullets();
+            drawAsteroids();
+            drawScore();
+            updatePlayer();
+            updateBullets();
+            updateAsteroids();
+            detectCollisions();
+            requestAnimationFrame(update);
+        }
+
+        function moveRight() {
+            player.dx = player.speed;
+        }
+
+        function moveLeft() {
+            player.dx = -player.speed;
+        }
+
+        function keyDown(e) {
+            if (e.key === 'ArrowRight' || e.key === 'Right') {
+                moveRight();
+            } else if (e.key === 'ArrowLeft' || e.key === 'Left') {
+                moveLeft();
+            } else if (e.code === 'Space') {
+                shoot();
+            }
+        }
+
+        function keyUp(e) {
+            if (
+                e.key === 'ArrowRight' ||
+                e.key === 'Right' ||
+                e.key === 'ArrowLeft' ||
+                e.key === 'Left'
+            ) {
+                player.dx = 0;
+            }
+        }
+
+        document.addEventListener('keydown', keyDown);
+        document.addEventListener('keyup', keyUp);
+
+        setInterval(createAsteroid, 2000);
+
+        update();
+    </script>
+</body>
+</html>

@@ -111,7 +111,7 @@
 }
 
         function createSubmarine() {
-            const size = 120 + Math.min(score / 50, 50); // Submarines get bigger as score increases
+            const size = 75 + Math.min(score / 50, 50); // Submarines get bigger as score increases
             const x = Math.random() * (canvas.width - size);
             const speed = Math.random() * 2 + 1 + score / 100; // Increase speed as score increases
             submarines.push({ x, y: -size, width: size, height: size, speed });

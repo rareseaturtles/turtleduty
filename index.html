@@ -38,6 +38,9 @@
         const playerImage = new Image();
         playerImage.src = 'https://i.ibb.co/rvj8FKn/player.png';
 
+        const submarineImage = new Image();
+        submarineImage.src = 'https://i.ibb.co/B3QMf6M/submarine.png';
+
         const asteroidImages = [
             'https://i.ibb.co/QrzDhWM/fish.png',
             'https://i.ibb.co/cYLVhpc/shark.png',
@@ -61,7 +64,9 @@
 
         const bullets = [];
         const asteroids = [];
+        const submarines = [];
         let score = 0;
+        let gameOver = false;
 
         function createAsteroid() {
             const img = asteroidImages[Math.floor(Math.random() * asteroidImages.length)];
@@ -71,6 +76,13 @@
             const direction = Math.random() < 0.5 ? -1 : 1;
             const x = direction === 1 ? -size : canvas.width + size;
             asteroids.push({ img, x, y, size, speed, direction });
+        }
+
+        function createSubmarine() {
+            const size = 60;
+            const x = Math.random() * (canvas.width - size);
+            const speed = Math.random() * 2 + 1;
+            submarines.push({ x, y: -size, width: size, height: size, speed });
         }
 
         function drawPlayer() {
@@ -90,8 +102,14 @@
             });
         }
 
+        function drawSubmarines() {
+            submarines.forEach(submarine => {
+                ctx.drawImage(submarineImage, submarine.x, submarine.y, submarine.width, submarine.height);
+            });
+        }
+
         function drawScore() {
-            ctx.fillStyle = 'white';
+            ctx.fillStyle = 'black';
             ctx.font = '24px Arial';
             ctx.fillText(`Score: ${score}`, 20, 40);
         }
@@ -112,6 +130,15 @@
                     asteroid.x = -asteroid.size;
                 } else if (asteroid.direction === -1 && asteroid.x < -asteroid.size) {
                     asteroid.x = canvas.width + asteroid.size;
+                }
+            });
+        }
+
+        function updateSubmarines() {
+            submarines.forEach((submarine, index) => {
+                submarine.y += submarine.speed;
+                if (submarine.y > canvas.height) {
+                    submarines.splice(index, 1);
                 }
             });
         }
@@ -140,6 +167,17 @@
                     }
                 });
             });
+
+            submarines.forEach((submarine, sIndex) => {
+                if (
+                    player.x < submarine.x + submarine.width &&
+                    player.x + player.width > submarine.x &&
+                    player.y < submarine.y + submarine.height &&
+                    player.y + player.height > submarine.y
+                ) {
+                    gameOver = true;
+                }
+            });
         }
 
         function shoot() {
@@ -166,14 +204,23 @@
         }
 
         function update() {
+            if (gameOver) {
+                ctx.fillStyle = 'red';
+                ctx.font = '48px Arial';
+                ctx.fillText('Game Over', canvas.width / 2 - 100, canvas.height / 2);
+                return;
+            }
+
             clear();
             drawPlayer();
             drawBullets();
             drawAsteroids();
+            drawSubmarines();
             drawScore();
             updatePlayer();
             updateBullets();
             updateAsteroids();
+            updateSubmarines();
             detectCollisions();
             requestAnimationFrame(update);
         }
@@ -228,6 +275,7 @@
         });
 
         setInterval(createAsteroid, 2000);
+        setInterval(createSubmarine, 5000); // Submarines appear every 5 seconds
         update();
     </script>
 </body>

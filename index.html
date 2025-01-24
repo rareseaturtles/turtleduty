@@ -18,13 +18,29 @@
             background-size: cover;
             display: block;
         }
+        .shoot-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background-color: red;
+            border-radius: 50%;
+            border: none;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    <button class="shoot-button" id="shootButton">Shoot</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const shootButton = document.getElementById('shootButton');
 
         // Set canvas size to fit the window
         function resizeCanvas() {
@@ -52,16 +68,15 @@
             return img;
         });
 
-      const player = {
-    x: canvas.width / 2 - 75, // Adjust x to center the larger player
-    y: canvas.height - 150, // Adjust y to account for the larger size
-    width: 150, // New width of the player
-    height: 150, // New height of the player
-    speed: 7,
-    dx: 0,
-    dragging: false,
-};
-
+        const player = {
+            x: canvas.width / 2 - 75, // Adjust x to center the larger player
+            y: canvas.height - 150, // Adjust y to account for the larger size
+            width: 150, // New width of the player
+            height: 150, // New height of the player
+            speed: 7,
+            dx: 0,
+            dragging: false,
+        };
 
         const bullets = [];
         const asteroids = [];
@@ -152,7 +167,7 @@
                     player.y < asteroid.y + asteroid.size &&
                     player.y + player.height > asteroid.y
                 ) {
-                    console.log('Player hit!');
+                    gameOver = true;
                 }
 
                 bullets.forEach((bullet, bIndex) => {
@@ -248,27 +263,30 @@
             }
         });
 
-      // Mobile Controls: Tap and drag anywhere to move the player
-canvas.addEventListener('pointerdown', (e) => {
-    e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
-    player.dragging = true;
-    const touchX = e.offsetX;
-    player.x = touchX - player.width / 2; // Center the player at the touch point
-});
+        // Mobile Controls: Tap and drag anywhere to move the player
+        canvas.addEventListener('pointerdown', (e) => {
+            e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
+            player.dragging = true;
+            const touchX = e.offsetX;
+            player.x = touchX - player.width / 2; // Center the player at the touch point
+        });
 
-canvas.addEventListener('pointermove', (e) => {
-    if (player.dragging) {
-        e.preventDefault(); // Prevent default behavior
-        const touchX = e.offsetX;
-        player.x = touchX - player.width / 2; // Update player position
-    }
-});
+        canvas.addEventListener('pointermove', (e) => {
+            if (player.dragging) {
+                e.preventDefault(); // Prevent default behavior
+                const touchX = e.offsetX;
+                player.x = touchX - player.width / 2; // Update player position
+            }
+        });
 
-canvas.addEventListener('pointerup', (e) => {
-    e.preventDefault(); // Prevent default behavior
-    player.dragging = false;
-});
-        
+        canvas.addEventListener('pointerup', (e) => {
+            e.preventDefault(); // Prevent default behavior
+            player.dragging = false;
+        });
+
+        // Mobile Shoot Button
+        shootButton.addEventListener('click', shoot);
+
         setInterval(createAsteroid, 2000);
         setInterval(createSubmarine, 5000); // Submarines appear every 5 seconds
         update();

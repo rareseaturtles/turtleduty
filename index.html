@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Turtle Duty Game</title>
-    <!-- Prevent zooming and resizing -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Turtle Duty Game">
     <meta property="og:description" content="Play Turtle Duty, an exciting game where you control a turtle!">
@@ -13,7 +12,6 @@
     <meta property="og:url" content="https://turtleduty.netlify.app">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Turtle Duty">
-
     <style>
         body {
             margin: 0;
@@ -23,15 +21,11 @@
             background-color: black;
             overflow: hidden;
             touch-action: none; /* Disable all touch actions */
-            -webkit-user-select: none; /* Prevent selection of text or elements */
-            -webkit-touch-callout: none; /* Disable context menu on touch */
         }
         canvas {
             background: url('https://i.ibb.co/3kZ0zLM/background.jpg') no-repeat center center;
             background-size: cover;
             display: block;
-            width: 100vw;  /* Full width of the viewport */
-            height: 100vh; /* Full height of the viewport */
         }
         #restartButton {
             position: absolute;
@@ -72,6 +66,17 @@
         const restartButton = document.getElementById('restartButton');
         const pauseButton = document.getElementById('pauseButton');
 
+        // Prevent pinch zooming and double tap zooming
+        document.body.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();  // Prevent pinch zoom
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();  // Prevent double tap zoom
+        });
+
         // Set canvas size to fit the window
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -99,10 +104,10 @@
         });
 
         const player = {
-            x: canvas.width / 2 - 75, // Adjust x to center the larger player
-            y: canvas.height - 300, // Adjust y to move the player slightly off the bottom
-            width: 200, // New width of the player
-            height: 200, // New height of the player
+            x: canvas.width / 2 - 75,
+            y: canvas.height - 300,
+            width: 200,
+            height: 200,
             speed: 7,
             dragging: false,
         };
@@ -113,23 +118,23 @@
         let score = 0;
         let gameOver = false;
         let paused = false;
-        let fireCooldown = 300; // Milliseconds between shots
+        let fireCooldown = 300;
         let lastFireTime = 0;
 
         function createAsteroid() {
             const img = asteroidImages[Math.floor(Math.random() * asteroidImages.length)];
             const size = Math.random() * 50 + 30;
-            const y = Math.random() * (canvas.height / 2);  // Spawn asteroids above the player's position
-            const speed = Math.random() * 2 + 1 + score / 100; // Increase speed as score increases
+            const y = Math.random() * (canvas.height / 2);
+            const speed = Math.random() * 2 + 1 + score / 100;
             const direction = Math.random() < 0.5 ? -1 : 1;
             const x = direction === 1 ? -size : canvas.width + size;
             asteroids.push({ img, x, y, size, speed, direction });
         }
 
         function createSubmarine() {
-            const size = 75 + Math.min(score / 50, 50); // Submarines get bigger as score increases
+            const size = 75 + Math.min(score / 50, 50);
             const x = Math.random() * (canvas.width - size);
-            const speed = Math.random() * 2 + 1 + score / 100; // Increase speed as score increases
+            const speed = Math.random() * 2 + 1 + score / 100;
             submarines.push({ x, y: -size, width: size, height: size, speed });
         }
 
@@ -215,18 +220,18 @@
                     player.y + player.height > submarine.y
                 ) {
                     gameOver = true;
-                    restartButton.style.display = 'block'; // Show the restart button
+                    restartButton.style.display = 'block';
                 }
             });
         }
 
         function shoot() {
             const now = Date.now();
-            if (now - lastFireTime < fireCooldown) return; // Enforce cooldown
+            if (now - lastFireTime < fireCooldown) return;
             lastFireTime = now;
 
             const bullet = {
-                x: player.x + player.width / 2 - 2.5, // Center of the player
+                x: player.x + player.width / 2 - 2.5,
                 y: player.y,
                 width: 5,
                 height: 10,
@@ -262,45 +267,39 @@
             requestAnimationFrame(update);
         }
 
-        // Restart the game
         restartButton.addEventListener('click', () => {
             gameOver = false;
             score = 0;
             bullets.length = 0;
             asteroids.length = 0;
             submarines.length = 0;
-            restartButton.style.display = 'none'; //
+            restartButton.style.display = 'none';
             player.x = canvas.width / 2 - player.width / 2;
-            player.y = canvas.height - 200; // Reset player position
+            player.y = canvas.height - 200;
             update();
         });
 
-        // Pause the game
         pauseButton.addEventListener('click', () => {
             paused = !paused;
             pauseButton.textContent = paused ? 'Resume' : 'Pause';
-            if (!paused) update(); // Resume the game loop
+            if (!paused) update();
         });
 
-        // Mobile Controls: Tap or drag to move and shoot
         canvas.addEventListener('pointerdown', (e) => {
-            e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
-            player.dragging = true;
+            e.preventDefault();
             const touchX = e.offsetX;
-            const touchY = e.offsetY;
-            player.x = touchX - player.width / 2; // Center the player at the touch point
-            shoot(touchX, touchY);
+            player.x = touchX - player.width / 2;
+            shoot();
         });
 
         canvas.addEventListener('pointermove', (e) => {
             if (player.dragging) {
-                e.preventDefault(); // Prevent default behavior
+                e.preventDefault();
                 const touchX = e.offsetX;
-                player.x = touchX - player.width / 2; // Update player position
+                player.x = touchX - player.width / 2;
             }
         });
 
-        // Game initialization
         setInterval(createAsteroid, 1000);
         setInterval(createSubmarine, 4000);
         update();

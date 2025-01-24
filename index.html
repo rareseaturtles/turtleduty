@@ -276,7 +276,23 @@
             shoot(touchX, touchY);
         });
 
-        canvas.addEventListener('pointermove', (e) => {
+       canvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
+
+    const touchX = e.offsetX;
+    const touchY = e.offsetY;
+
+    // Check if the tap is within the player's boundaries
+    if (
+        touchX >= player.x &&
+        touchX <= player.x + player.width &&
+        touchY >= player.y &&
+        touchY <= player.y + player.height
+    ) {
+        shoot(touchX, player.y); // Shoot from the player's current position
+    }
+});
+         canvas.addEventListener('pointermove', (e) => {
             if (player.dragging) {
                 e.preventDefault(); // Prevent default behavior
                 const touchX = e.offsetX;
@@ -284,10 +300,6 @@
             }
         });
 
-        canvas.addEventListener('pointerup', (e) => {
-            e.preventDefault(); // Prevent default behavior
-            player.dragging = false;
-        });
 
         // Game initialization
         setInterval(createAsteroid, 2000);

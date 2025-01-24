@@ -248,33 +248,27 @@
             }
         });
 
-        // Mobile Controls
-        canvas.addEventListener('pointerdown', (e) => {
-            const touchX = e.offsetX;
-            const touchY = e.offsetY;
+      // Mobile Controls: Tap and drag anywhere to move the player
+canvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
+    player.dragging = true;
+    const touchX = e.offsetX;
+    player.x = touchX - player.width / 2; // Center the player at the touch point
+});
 
-            if (
-                touchX >= player.x &&
-                touchX <= player.x + player.width &&
-                touchY >= player.y &&
-                touchY <= player.y + player.height
-            ) {
-                player.dragging = true;
-                shoot(); // Shoot when tapping the player
-            }
-        });
+canvas.addEventListener('pointermove', (e) => {
+    if (player.dragging) {
+        e.preventDefault(); // Prevent default behavior
+        const touchX = e.offsetX;
+        player.x = touchX - player.width / 2; // Update player position
+    }
+});
 
-        canvas.addEventListener('pointermove', (e) => {
-            if (player.dragging) {
-                const touchX = e.offsetX;
-                player.x = touchX - player.width / 2;
-            }
-        });
-
-        canvas.addEventListener('pointerup', () => {
-            player.dragging = false;
-        });
-
+canvas.addEventListener('pointerup', (e) => {
+    e.preventDefault(); // Prevent default behavior
+    player.dragging = false;
+});
+        
         setInterval(createAsteroid, 2000);
         setInterval(createSubmarine, 5000); // Submarines appear every 5 seconds
         update();

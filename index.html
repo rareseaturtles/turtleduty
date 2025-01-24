@@ -66,16 +66,20 @@
         const restartButton = document.getElementById('restartButton');
         const pauseButton = document.getElementById('pauseButton');
 
-        // Prevent pinch zooming and double tap zooming
-        document.body.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 1) {
-                e.preventDefault();  // Prevent pinch zoom
-            }
-        });
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints;
 
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();  // Prevent double tap zoom
-        });
+        // Prevent pinch zooming and double tap zooming for touch devices
+        if (isTouchDevice) {
+            document.body.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 1) {
+                    e.preventDefault();  // Prevent pinch zoom
+                }
+            });
+
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();  // Prevent double tap zoom
+            });
+        }
 
         // Set canvas size to fit the window
         function resizeCanvas() {
@@ -181,7 +185,8 @@
                 asteroid.x += asteroid.speed * asteroid.direction;
                 if (asteroid.direction === 1 && asteroid.x > canvas.width + asteroid.size) {
                     asteroid.x = -asteroid.size;
-                }
+                } else if (asteroid.direction === -1 && asteroid.x < -asteroid.size) {
+                    asteroid.x = canvas.width + asteroid.size;
                 }
             });
         }
@@ -284,23 +289,37 @@
             if (!paused) update();
         });
 
-        canvas.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            const touchX = e.offsetX;
-            player.x = touchX - player.width / 2;
-            shoot();
-        });
+        // Desktop control for mouse
+        if (!isTouchDevice) {
+            canvas.addEventListener('mousemove', (e) => {
+                const mouseX = e.offsetX;
+                player.x = mouseX - player.width / 2;
+            });
 
-        canvas.addEventListener('pointermove', (e) => {
-            if (player.dragging) {
+            canvas.addEventListener('click', () => {
+                shoot();
+            });
+        }
+
+        // Touch control for mobile
+        else {
+            canvas.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                const touchX = e.offsetX;
+                const touchX = e.touches[0].clientX;
                 player.x = touchX - player.width / 2;
-            }
-        });
+                shoot();
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    const touchX = e.touches[0].clientX;
+                    player.x = touchX - player.width / 2;
+                }
+            });
+        }
 
         setInterval(createAsteroid, 1000);
-        setInterval(createSubmarine, 2500);
+        setInterval(createSubmarine, 4000);
         update();
     </script>
 </body>

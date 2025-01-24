@@ -24,9 +24,11 @@
             touch-action: none; /* Disable all touch actions */
         }
 
+        /* Added a border around the canvas */
         canvas {
+            border: 5px solid #fff;
             background: url('https://i.ibb.co/3kZ0zLM/background.jpg') no-repeat center center;
-            background-size: cover;
+            background-size: cover;  /* Resize background to fit the canvas */
             display: block;
         }
 
@@ -73,8 +75,8 @@
 
         // Set canvas size to fit the window
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth - 10;  // Subtracting 10 to account for border
+            canvas.height = window.innerHeight - 10;  // Subtracting 10 to account for border
         }
 
         window.addEventListener('resize', resizeCanvas);
@@ -268,7 +270,7 @@
             bullets.length = 0;
             asteroids.length = 0;
             submarines.length = 0;
-            restartButton.style.display = 'none'; //
+            restartButton.style.display = 'none'; // Hide the restart button
             player.x = canvas.width / 2 - player.width / 2;
             player.y = canvas.height - 200; // Reset player position
             update();
@@ -318,7 +320,7 @@
 
         // Game initialization
         setInterval(createAsteroid, 1000);
-        setInterval(createSubmarine, 4000);
+        setInterval(createSubmarine, 2500);
         update();
     </script>
 </body>

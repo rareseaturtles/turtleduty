@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Turtle Duty Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
         body {
             margin: 0;
@@ -10,8 +11,8 @@
             justify-content: center;
             align-items: center;
             background-color: black;
-            overflow: hidden; /* Prevent scrolling */
-            touch-action: none; /* Disable zooming and scrolling */
+            overflow: hidden;
+            touch-action: none; /* Disable all touch actions */
         }
         canvas {
             background: url('https://i.ibb.co/3kZ0zLM/background.jpg') no-repeat center center;
@@ -30,7 +31,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            display: none; /* Hidden by default */
+            display: none;
         }
         #pauseButton {
             position: absolute;
@@ -46,6 +47,7 @@
         }
     </style>
 </head>
+
 <body>
     <canvas id="gameCanvas"></canvas>
     <button id="restartButton">Start Over</button>

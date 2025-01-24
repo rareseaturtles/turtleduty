@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Asteroid Shooter Game</title>
+    <title>Turtle Duty Game</title>
     <style>
         body {
             margin: 0;
@@ -52,15 +52,16 @@
             return img;
         });
 
-        const player = {
-            x: canvas.width / 2 - 50,
-            y: canvas.height - 120,
-            width: 100,
-            height: 100,
-            speed: 7,
-            dx: 0,
-            dragging: false,
-        };
+      const player = {
+    x: canvas.width / 2 - 75, // Adjust x to center the larger player
+    y: canvas.height - 150, // Adjust y to account for the larger size
+    width: 150, // New width of the player
+    height: 150, // New height of the player
+    speed: 7,
+    dx: 0,
+    dragging: false,
+};
+
 
         const bullets = [];
         const asteroids = [];

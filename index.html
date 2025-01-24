@@ -9,22 +9,30 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             background-color: black;
+            overflow: hidden; /* Prevent scrolling */
         }
         canvas {
             background: url('https://i.ibb.co/3kZ0zLM/background.jpg') no-repeat center center;
             background-size: cover;
             display: block;
-            touch-action: none; /* Prevent default touch gestures */
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas"></canvas>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+
+        // Set canvas size to fit the window
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         const playerImage = new Image();
         playerImage.src = 'https://i.ibb.co/rvj8FKn/player.png';
@@ -43,9 +51,9 @@
         const player = {
             x: canvas.width / 2 - 50,
             y: canvas.height - 120,
-            width: 100, // Larger player
+            width: 100,
             height: 100,
-            dragging: false, // To track drag state
+            dragging: false,
         };
 
         const bullets = [];
@@ -54,8 +62,8 @@
 
         function createAsteroid() {
             const img = asteroidImages[Math.floor(Math.random() * asteroidImages.length)];
-            const size = Math.random() * 30 + 20;
-            const y = Math.random() * canvas.height;
+            const size = Math.random() * 50 + 30; // Adjusted size for larger canvas
+            const y = Math.random() * (canvas.height - size);
             const speed = Math.random() * 2 + 1;
             const direction = Math.random() < 0.5 ? -1 : 1;
             const x = direction === 1 ? -size : canvas.width + size;
@@ -81,8 +89,8 @@
 
         function drawScore() {
             ctx.fillStyle = 'white';
-            ctx.font = '20px Arial';
-            ctx.fillText(`Score: ${score}`, 10, 30);
+            ctx.font = '24px Arial';
+            ctx.fillText(`Score: ${score}`, 20, 40);
         }
 
         function updateBullets() {
@@ -163,7 +171,6 @@
             const touchX = e.offsetX;
             const touchY = e.offsetY;
 
-            // Check if the touch is on the player
             if (
                 touchX >= player.x &&
                 touchX <= player.x + player.width &&
@@ -171,8 +178,6 @@
                 touchY <= player.y + player.height
             ) {
                 player.dragging = true;
-
-                // Fire a shot when touched
                 shoot();
             }
         });
@@ -180,10 +185,8 @@
         canvas.addEventListener('pointermove', (e) => {
             if (player.dragging) {
                 const touchX = e.offsetX;
-                // Update player position based on drag
                 player.x = touchX - player.width / 2;
 
-                // Ensure player stays within bounds
                 if (player.x < 0) player.x = 0;
                 if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
             }

@@ -1,3 +1,7 @@
+Share
+
+
+You said:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -143,7 +147,7 @@
         function drawScore() {
             ctx.fillStyle = 'black';
             ctx.font = '24px Arial';
-            ctx.fillText(`Score: ${score}`, 20, 40);
+            ctx.fillText(Score: ${score}, 20, 40);
         }
 
         function updateBullets() {
@@ -264,79 +268,41 @@ function shoot() {
             pauseButton.textContent = paused ? 'Resume' : 'Pause';
             if (!paused) update(); // Resume the game loop
         });
-// Handle keyboard input (left, right arrow, space bar)
-document.addEventListener('keydown', (e) => {
-    if (gameOver || paused) return; // Ignore input if the game is over or paused
 
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        // Move the player left or right with arrow keys
-        if (e.key === 'ArrowLeft' && player.x > 0) {
-            player.x -= player.speed;
-        } else if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) {
-            player.x += player.speed;
-        }
-    }
+        // Mobile Controls: Tap or drag to move and shoot
+        canvas.addEventListener('pointerdown', (e) => {
+            e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
+            player.dragging = true;
+            const touchX = e.offsetX;
+            const touchY = e.offsetY;
+            player.x = touchX - player.width / 2; // Center the player at the touch point
+            shoot(touchX, touchY);
+        });
 
-    if (e.key === ' ') {
-        // Space bar to shoot
-        shoot();
-    }
-});
-
-// Mouse drag for moving the player
-canvas.addEventListener('pointerdown', (e) => {
+       canvas.addEventListener('pointerdown', (e) => {
     e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
-    
+
     const touchX = e.offsetX;
     const touchY = e.offsetY;
-    
-    // Start dragging if the tap is within the player's boundaries
+
+    // Check if the tap is within the player's boundaries
     if (
         touchX >= player.x &&
         touchX <= player.x + player.width &&
         touchY >= player.y &&
         touchY <= player.y + player.height
     ) {
-        player.dragging = true;
-        shoot(); // Shoot from the player's current position
+        shoot(touchX, player.y); // Shoot from the player's current position
     }
 });
+         canvas.addEventListener('pointermove', (e) => {
+            if (player.dragging) {
+                e.preventDefault(); // Prevent default behavior
+                const touchX = e.offsetX;
+                player.x = touchX - player.width / 2; // Update player position
+            }
+        });
 
-// Mouse move for dragging the player
-canvas.addEventListener('pointermove', (e) => {
-    if (player.dragging) {
-        e.preventDefault(); // Prevent default behavior
-        const touchX = e.offsetX;
-        player.x = touchX - player.width / 2; // Update player position while dragging
-    }
-});
-
-// Mouse up to stop dragging
-canvas.addEventListener('pointerup', () => {
-    player.dragging = false; // Stop dragging when the user lifts their finger
-});
-
-// Mobile controls
-canvas.addEventListener('pointerdown', (e) => {
-    e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
-
-    const touchX = e.offsetX;
-    const touchY = e.offsetY;
-
-    // Check if the tap is within the player's boundaries to shoot
-    if (
-        touchX >= player.x &&
-        touchX <= player.x + player.width &&
-        touchY >= player.y &&
-        touchY <= player.y + player.height
-    ) {
-        shoot(); // Shoot from the player's current position
-    }
-
-    // If dragging, move the player
-    player.dragging = true;
-    player.x = touchX - player.width / 2; // Center the player at the touch point
-});
 
         // Game initialization
         setInterval(createAsteroid, 2000);

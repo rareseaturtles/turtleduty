@@ -275,29 +275,27 @@ function shoot() {
             shoot(touchX, touchY);
         });
 
-       canvas.addEventListener('pointerdown', (e) => {
+      canvas.addEventListener('pointerdown', (e) => {
     e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
 
     const touchX = e.offsetX;
     const touchY = e.offsetY;
 
-    // Check if the tap is within the player's boundaries
+    // Check if the tap is within the player's boundaries to shoot
     if (
         touchX >= player.x &&
         touchX <= player.x + player.width &&
         touchY >= player.y &&
         touchY <= player.y + player.height
     ) {
-        shoot(touchX, player.y); // Shoot from the player's current position
+        shoot(); // Shoot from the player's current position
     }
+
+    // If dragging, move the player
+    player.dragging = true;
+    player.x = touchX - player.width / 2; // Center the player at the touch point
 });
-         canvas.addEventListener('pointermove', (e) => {
-            if (player.dragging) {
-                e.preventDefault(); // Prevent default behavior
-                const touchX = e.offsetX;
-                player.x = touchX - player.width / 2; // Update player position
-            }
-        });
+
 
 
         // Game initialization

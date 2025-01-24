@@ -18,13 +18,29 @@
             background-size: cover;
             display: block;
         }
+        #restartButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            font-size: 24px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    <button id="restartButton">Start Over</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const restartButton = document.getElementById('restartButton');
 
         // Set canvas size to fit the window
         function resizeCanvas() {
@@ -166,6 +182,7 @@
                     player.y + player.height > submarine.y
                 ) {
                     gameOver = true;
+                    restartButton.style.display = 'block'; // Show the restart button
                 }
             });
         }
@@ -205,6 +222,17 @@
             detectCollisions();
             requestAnimationFrame(update);
         }
+
+        // Restart the game
+        restartButton.addEventListener('click', () => {
+            gameOver = false;
+            score = 0;
+            bullets.length = 0;
+            asteroids.length = 0;
+            submarines.length = 0;
+            restartButton.style.display = 'none'; // Hide the restart button
+            update();
+        });
 
         // Mobile Controls: Tap and drag anywhere to move the player and shoot
         canvas.addEventListener('pointerdown', (e) => {

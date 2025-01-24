@@ -32,15 +32,29 @@
             cursor: pointer;
             display: none; /* Hidden by default */
         }
+        #pauseButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     <button id="restartButton">Start Over</button>
+    <button id="pauseButton">Pause</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const restartButton = document.getElementById('restartButton');
+        const pauseButton = document.getElementById('pauseButton');
 
         // Set canvas size to fit the window
         function resizeCanvas() {
@@ -82,21 +96,24 @@
         const submarines = [];
         let score = 0;
         let gameOver = false;
+        let paused = false;
+        let fireCooldown = 300; // Milliseconds between shots
+        let lastFireTime = 0;
 
         function createAsteroid() {
             const img = asteroidImages[Math.floor(Math.random() * asteroidImages.length)];
             const size = Math.random() * 50 + 30;
             const y = Math.random() * (canvas.height - size);
-            const speed = Math.random() * 2 + 1;
+            const speed = Math.random() * 2 + 1 + score / 100; // Increase speed as score increases
             const direction = Math.random() < 0.5 ? -1 : 1;
             const x = direction === 1 ? -size : canvas.width + size;
             asteroids.push({ img, x, y, size, speed, direction });
         }
 
         function createSubmarine() {
-            const size = 60;
+            const size = 60 + Math.min(score / 50, 50); // Submarines get bigger as score increases
             const x = Math.random() * (canvas.width - size);
-            const speed = Math.random() * 2 + 1;
+            const speed = Math.random() * 2 + 1 + score / 100; // Increase speed as score increases
             submarines.push({ x, y: -size, width: size, height: size, speed });
         }
 
@@ -188,6 +205,10 @@
         }
 
         function shoot(x, y) {
+            const now = Date.now();
+            if (now - lastFireTime < fireCooldown) return; // Enforce cooldown
+            lastFireTime = now;
+
             const bullet = {
                 x: x - 2.5,
                 y: y,
@@ -203,10 +224,12 @@
         }
 
         function update() {
-            if (gameOver) {
-                ctx.fillStyle = 'red';
-                ctx.font = '48px Arial';
-                ctx.fillText('Game Over', canvas.width / 2 - 100, canvas.height / 2);
+            if (paused || gameOver) {
+                if (gameOver) {
+                    ctx.fillStyle = 'red';
+                    ctx.font = '48px Arial';
+                    ctx.fillText('Game Over', canvas.width / 2 - 100, canvas.height / 2);
+                }
                 return;
             }
 
@@ -230,27 +253,34 @@
             bullets.length = 0;
             asteroids.length = 0;
             submarines.length = 0;
-            restartButton.style.display = 'none'; // Hide the restart button
+            restartButton.style.display = 'none'; //
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - 200; // Reset player position
             update();
         });
 
-        // Mobile Controls: Tap and drag anywhere to move the player and shoot
+        // Pause the game
+        pauseButton.addEventListener('click', () => {
+            paused = !paused;
+            pauseButton.textContent = paused ? 'Resume' : 'Pause';
+            if (!paused) update(); // Resume the game loop
+        });
+
+        // Mobile Controls: Tap or drag to move and shoot
         canvas.addEventListener('pointerdown', (e) => {
             e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
             player.dragging = true;
             const touchX = e.offsetX;
             const touchY = e.offsetY;
             player.x = touchX - player.width / 2; // Center the player at the touch point
-            shoot(touchX, touchY); // Shoot at the touch point
+            shoot(touchX, touchY);
         });
 
         canvas.addEventListener('pointermove', (e) => {
             if (player.dragging) {
                 e.preventDefault(); // Prevent default behavior
                 const touchX = e.offsetX;
-                const touchY = e.offsetY;
                 player.x = touchX - player.width / 2; // Update player position
-                shoot(touchX, touchY); // Continuously shoot while dragging
             }
         });
 
@@ -259,8 +289,9 @@
             player.dragging = false;
         });
 
+        // Game initialization
         setInterval(createAsteroid, 2000);
-        setInterval(createSubmarine, 5000); // Submarines appear every 5 seconds
+        setInterval(createSubmarine, 5000);
         update();
     </script>
 </body>

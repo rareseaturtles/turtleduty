@@ -11,6 +11,7 @@
             align-items: center;
             background-color: black;
             overflow: hidden; /* Prevent scrolling */
+            touch-action: none; /* Disable zooming and scrolling on touch */
         }
         canvas {
             background: url('https://i.ibb.co/3kZ0zLM/background.jpg') no-repeat center center;
@@ -166,7 +167,7 @@
             requestAnimationFrame(update);
         }
 
-        // Event handlers for drag and shoot
+        // Event handlers for dragging and shooting
         canvas.addEventListener('pointerdown', (e) => {
             const touchX = e.offsetX;
             const touchY = e.offsetY;
@@ -178,7 +179,7 @@
                 touchY <= player.y + player.height
             ) {
                 player.dragging = true;
-                shoot();
+                shoot(); // Shoot when the player taps the ship
             }
         });
 

@@ -204,20 +204,20 @@
             });
         }
 
-        function shoot(x, y) {
-            const now = Date.now();
-            if (now - lastFireTime < fireCooldown) return; // Enforce cooldown
-            lastFireTime = now;
+      function shoot() {
+    const now = Date.now();
+    if (now - lastFireTime < fireCooldown) return; // Enforce cooldown
+    lastFireTime = now;
 
-            const bullet = {
-                x: x - 2.5,
-                y: y,
-                width: 5,
-                height: 10,
-                speed: 7
-            };
-            bullets.push(bullet);
-        }
+    const bullet = {
+        x: player.x + player.width / 2 - 2.5, // Center of the player
+        y: player.y,
+        width: 5,
+        height: 10,
+        speed: 7
+    };
+    bullets.push(bullet);
+}
 
         function clear() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);

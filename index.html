@@ -266,35 +266,36 @@ function shoot() {
         });
 
         // Mobile Controls: Tap or drag to move and shoot
-        canvas.addEventListener('pointerdown', (e) => {
-            e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
-            player.dragging = true;
-            const touchX = e.offsetX;
-            const touchY = e.offsetY;
-            player.x = touchX - player.width / 2; // Center the player at the touch point
-            shoot(touchX, touchY);
-        });
-
-      canvas.addEventListener('pointerdown', (e) => {
+       canvas.addEventListener('pointerdown', (e) => {
     e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
-
+    
     const touchX = e.offsetX;
     const touchY = e.offsetY;
-
-    // Check if the tap is within the player's boundaries to shoot
+    
+    // Start dragging if the tap is within the player's boundaries
     if (
         touchX >= player.x &&
         touchX <= player.x + player.width &&
         touchY >= player.y &&
         touchY <= player.y + player.height
     ) {
+        player.dragging = true;
         shoot(); // Shoot from the player's current position
     }
-
-    // If dragging, move the player
-    player.dragging = true;
-    player.x = touchX - player.width / 2; // Center the player at the touch point
 });
+
+canvas.addEventListener('pointermove', (e) => {
+    if (player.dragging) {
+        e.preventDefault(); // Prevent default behavior
+        const touchX = e.offsetX;
+        player.x = touchX - player.width / 2; // Update player position while dragging
+    }
+});
+
+canvas.addEventListener('pointerup', () => {
+    player.dragging = false; // Stop dragging when the user lifts their finger
+});
+
 
 
 

@@ -18,29 +18,13 @@
             background-size: cover;
             display: block;
         }
-        .shoot-button {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 80px;
-            height: 80px;
-            background-color: red;
-            border-radius: 50%;
-            border: none;
-            font-size: 18px;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <button class="shoot-button" id="shootButton">Shoot</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const shootButton = document.getElementById('shootButton');
 
         // Set canvas size to fit the window
         function resizeCanvas() {
@@ -70,11 +54,10 @@
 
         const player = {
             x: canvas.width / 2 - 75, // Adjust x to center the larger player
-            y: canvas.height - 150, // Adjust y to account for the larger size
+            y: canvas.height - 200, // Adjust y to move the player slightly off the bottom
             width: 150, // New width of the player
             height: 150, // New height of the player
             speed: 7,
-            dx: 0,
             dragging: false,
         };
 
@@ -160,17 +143,8 @@
         }
 
         function detectCollisions() {
-            asteroids.forEach((asteroid, aIndex) => {
-                if (
-                    player.x < asteroid.x + asteroid.size &&
-                    player.x + player.width > asteroid.x &&
-                    player.y < asteroid.y + asteroid.size &&
-                    player.y + player.height > asteroid.y
-                ) {
-                    gameOver = true;
-                }
-
-                bullets.forEach((bullet, bIndex) => {
+            bullets.forEach((bullet, bIndex) => {
+                asteroids.forEach((asteroid, aIndex) => {
                     if (
                         bullet.x < asteroid.x + asteroid.size &&
                         bullet.x + bullet.width > asteroid.x &&
@@ -196,10 +170,10 @@
             });
         }
 
-        function shoot() {
+        function shoot(x, y) {
             const bullet = {
-                x: player.x + player.width / 2 - 2.5,
-                y: player.y,
+                x: x - 2.5,
+                y: y,
                 width: 5,
                 height: 10,
                 speed: 7
@@ -209,14 +183,6 @@
 
         function clear() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function updatePlayer() {
-            player.x += player.dx;
-
-            // Ensure player stays within bounds
-            if (player.x < 0) player.x = 0;
-            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
         }
 
         function update() {
@@ -233,7 +199,6 @@
             drawAsteroids();
             drawSubmarines();
             drawScore();
-            updatePlayer();
             updateBullets();
             updateAsteroids();
             updateSubmarines();
@@ -241,41 +206,23 @@
             requestAnimationFrame(update);
         }
 
-        // Desktop Controls
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === 'Right') {
-                player.dx = player.speed;
-            } else if (e.key === 'ArrowLeft' || e.key === 'Left') {
-                player.dx = -player.speed;
-            } else if (e.code === 'Space') {
-                shoot();
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (
-                e.key === 'ArrowRight' ||
-                e.key === 'Right' ||
-                e.key === 'ArrowLeft' ||
-                e.key === 'Left'
-            ) {
-                player.dx = 0;
-            }
-        });
-
-        // Mobile Controls: Tap and drag anywhere to move the player
+        // Mobile Controls: Tap and drag anywhere to move the player and shoot
         canvas.addEventListener('pointerdown', (e) => {
             e.preventDefault(); // Prevent default behavior (e.g., zooming or scrolling)
             player.dragging = true;
             const touchX = e.offsetX;
+            const touchY = e.offsetY;
             player.x = touchX - player.width / 2; // Center the player at the touch point
+            shoot(touchX, touchY); // Shoot at the touch point
         });
 
         canvas.addEventListener('pointermove', (e) => {
             if (player.dragging) {
                 e.preventDefault(); // Prevent default behavior
                 const touchX = e.offsetX;
+                const touchY = e.offsetY;
                 player.x = touchX - player.width / 2; // Update player position
+                shoot(touchX, touchY); // Continuously shoot while dragging
             }
         });
 
@@ -283,9 +230,6 @@
             e.preventDefault(); // Prevent default behavior
             player.dragging = false;
         });
-
-        // Mobile Shoot Button
-        shootButton.addEventListener('click', shoot);
 
         setInterval(createAsteroid, 2000);
         setInterval(createSubmarine, 5000); // Submarines appear every 5 seconds
